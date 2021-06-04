@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "899454439175",
+    "firebase_url": "https://drillochat.firebaseio.com",
+    "project_id": "drillochat",
+    "storage_bucket": "drillochat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:899454439175:android:8974a3c5f0013f0ad6ffa2",
+        "android_client_info": {
+          "package_name": "com.chatwithme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "899454439175-vmgqvc1fbfo92k1hbgdq2vdb8mn70h8p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chatwithme",
+            "certificate_hash": "0f5b5d59941f004ddab568ef814b225e423ed3e2"
+          }
+        },
+        {
+          "client_id": "899454439175-3oi7812lithtr3ohhfgc47fhrso3tec3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3bf3PrAZaHdzrhOSv2lilzld7LhpxsYw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "899454439175-3oi7812lithtr3ohhfgc47fhrso3tec3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
