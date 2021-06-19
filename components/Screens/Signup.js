@@ -32,7 +32,7 @@ class Signup extends Component {
     };
   }
   onChange = password => this.setState({ password })
-
+ //Changes to this file
   signup() {
         const {uname, pass} = this.state;
         try {
