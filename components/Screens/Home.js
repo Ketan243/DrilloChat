@@ -1,32 +1,36 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import Header from '../Default/Header';
+
 import Chat from './Chat';
+import Header from '../Default/Header';
 import TopTab from '../Navigation/TopTab';
+import auth from '@react-native-firebase/auth';
 
 export default class Home extends Component {
-  menu(navigation) {
-    this.props.navigation.openDrawer();
-  }
-
   
   render() {
     return (
       <>
         <View style={styles.header}>
-          <Header />
+          <Header navigation={this.props.navigation} />
         </View>
 
         <View style={styles.container}>
           <TopTab />
         </View>
-        {/*<View style={styles.Header}>
-                <MaterialIcon name='menu' size={38} style={styles.icon} onPress={this.menu.bind(this)} />
-                <Text style={styles.headerTitle}>Drillo Chat  </Text>
-                <Button title='Logout' type="outline" titleStyle={styles.title} buttonStyle={styles.button} onPress={this.logout.bind(this)}></Button>
-    </View> */}
+      
       </>
     );
+  }
+  
+  componentWillUnmount() {
+    var unsubscribe = auth().onAuthStateChanged(function(user) {
+      if (user==auth().currentUser) {
+        console.log(user)
+      }
+    });
+    
+    unsubscribe();
   }
 }
 

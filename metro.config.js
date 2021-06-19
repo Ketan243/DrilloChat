@@ -9,6 +9,7 @@ module.exports = {
   transformer: {
     getTransformOptions: async () => ({
       transform: {
+        babelTransformerPath: require.resolve("./transformer"),
         experimentalImportSupport: false,
         inlineRequires: false,
       },

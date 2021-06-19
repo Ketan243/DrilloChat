@@ -1,16 +1,18 @@
-import React, {Component} from 'react';
+import {Avatar, Badge, Icon, ListItem} from 'react-native-elements';
 import {
-  StyleSheet,
-  Text,
-  View,
   FlatList,
   ScrollView,
+  StyleSheet,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import {ListItem, Badge, Avatar, Icon} from 'react-native-elements';
+import React, {Component} from 'react';
+
+import Main from './Main';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
-import Main from './Main';
+import firestore from '@react-native-firebase/firestore';
 
 class Chat extends Component {
   constructor(props) {
@@ -18,23 +20,21 @@ class Chat extends Component {
 
     this.state = {
       username: '',
-      name : ''
+      name: '',
+      friend_id: '',
     };
-   
   }
 
   componentDidMount() {
-    //console.log((auth().currentUser || {}).uid);
-
-    auth().onAuthStateChanged(user => {
+    const subscriber = auth().onAuthStateChanged(user => {
       if (user) {
+        const items = [];
         database()
           .ref('/users/')
           .on('value', snapshot => {
-            var items = [];
             var id = 1;
             snapshot.forEach(child => {
-              let uid = child.val().uid
+              const uid = child.val().uid;
               JSON.parse(
                 items.push({
                   name: child.val().name,
@@ -43,55 +43,42 @@ class Chat extends Component {
                   key: id++,
                 }),
               );
-              if(uid ===(auth().currentUser || {}).uid){
-                items.pop(uid)
-              }
-            });
-            
-            this.setState({
-              username: items,
-            });
 
-            //console.log('username', this.state.username);
+              if (uid === (auth().currentUser || {}).uid) {
+                var UID = items.pop(uid);
+              }
+              this.setState({
+                username: items,
+              });
+            });
           });
-        //console.log('User email: ', user.email);
       }
     });
-    const key = this.state.username['key'];
+    return subscriber;
+  }
+
+  componentWillUnmount() {
+    var unsubscribe = auth().onAuthStateChanged(function(user) {
+      if (user == auth().currentUser) {
+      }
+    });
+
+    unsubscribe();
   }
 
   chatting(navigation) {
-    var item = this.state.username;
-
-    const uid = (auth().currentUser || {}).uid;
-   
-    // console.log(uid)
-    var id = [];
-    item.forEach(element => {
-      if(item.email == element.email){
-        id.push(element.email);
-      }
-      
-
-      console.log(id)
-    });
-    this.props.navigation.navigate('Main', {id: id});
-    //console.log(id)
-    //console.log(this.myRef);
+    this.props.navigation.navigate('Main', {id: this.state.username[0]});
   }
-
 
   render() {
     return (
       <View style={styles.chatContainer}>
-        
         <FlatList
           style={styles.list}
           data={this.state.username}
           key={this.key}
           renderItem={({item}) => (
-            <TouchableOpacity
-              onPress={this.chatting.bind(this)}>
+            <TouchableOpacity onPress={this.chatting.bind(this)}>
               <View style={styles.chatList}>
                 <TouchableOpacity
                   key={item.key}

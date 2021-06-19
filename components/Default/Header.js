@@ -1,30 +1,31 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import {Button} from 'react-native-elements';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import auth from '@react-native-firebase/auth';
+import {useNavigation} from '@react-navigation/native';
 
 export default class Header extends Component {
-  menu(navigation) {
-    this.props.navigation.openDrawer();
-  }
-
+  
   logout(navigation) {
-    auth()
+      auth()
       .signOut()
       .then(() => console.log('User signed out!'));
     this.props.navigation.navigate('Login');
+    
   }
+
   render() {
     return (
       <View style={styles.Header}>
-        <Text style={styles.headerTitle}>Drillo Chat </Text>
+        <Text style={styles.headerTitle}>DrilloChat </Text>
         <Button
           title="Logout"
           type="outline"
           titleStyle={{color: 'white'}}
           buttonStyle={{borderColor: 'white'}}
-          onPress={this.props.navigation}
+          onPress={this.logout.bind(this)}
         />
       </View>
     );
@@ -49,7 +50,6 @@ const styles = StyleSheet.create({
   },
 
   headerTitle: {
-    //marginLeft: '30%',
     color: 'white',
     fontSize: 25,
     fontFamily: 'monospace',

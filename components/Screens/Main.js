@@ -1,39 +1,37 @@
-import React, {Component} from 'react';
 import {
-  Platform,
+  Button,
   KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   StyleSheet,
-  View,
   Text,
-  Button,
+  View,
 } from 'react-native';
-import {GiftedChat} from 'react-native-gifted-chat';
-import auth from '@react-native-firebase/auth';
+import React, {Component} from 'react';
+
 import Chatdb from '../Database/Chatdb';
-import Header from '../Default/Header'
+import {GiftedChat} from 'react-native-gifted-chat';
+import Header from '../Default/Header';
+import auth from '@react-native-firebase/auth';
 
 class Main extends Component {
-  
   constructor(props) {
     super(props);
     this.state = {
-      id:props.route.params.id,
-      friendId:props.route.params.uid,
+      id: props.route.params.id,
+      friendId: props.route.params.uid,
       messages: [],
     };
-    
   }
 
   get user() {
     var mychat = new Chatdb();
     return {
       _id: mychat.uid,
-      userId:this.state.id,
-      friendId:this.state.friendId,
+      userId: this.state.id,
+      friendId: this.state.friendId,
     };
-  };
-  
+  }
 
   componentDidMount() {
     var mychat = new Chatdb();
@@ -42,7 +40,6 @@ class Main extends Component {
         messages: GiftedChat.append(previous.messages, message),
       })),
     );
-    console.log(this.state.id[0])
   }
 
   componentWillUnmount() {
@@ -50,22 +47,20 @@ class Main extends Component {
     mychat.off();
   }
 
-  
-
-
   render() {
     var mychat = new Chatdb();
- 
+
     const chat = (
       <View style={{flex: 1}}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Drillo Chat</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Drillo Chat</Text>
+        </View>
+        <GiftedChat
+          messages={this.state.messages}
+          onSend={mychat.send}
+          user={this.user}
+        />
       </View>
-      <GiftedChat
-        messages={this.state.messages}
-        onSend={mychat.send}
-        user={this.user}
-      /></View>
     );
 
     if (Platform.OS === 'android') {
@@ -101,17 +96,17 @@ const styles = StyleSheet.create({
     fontFamily: 'serif',
     fontWeight: 'bold',
   },
-  header:{
-    height:'10%',
-    backgroundColor:'black',
-    justifyContent:'center',
-    alignItems:'center'
+  header: {
+    height: '10%',
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
-    fontFamily:'monospace',
-  }
+    fontFamily: 'monospace',
+  },
 });
 export default Main;

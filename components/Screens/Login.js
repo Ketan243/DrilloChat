@@ -1,37 +1,44 @@
-import React, {Component} from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Button,
-  ToastAndroid,
-  TouchableWithoutFeedback,
-  Keyboard,
   Alert,
+  Button,
+  Keyboard,
+  StyleSheet,
+  Text,
+  TextInput,
+  ToastAndroid,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
+import React, {Component} from 'react';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Loader from '../Default/Loader';
+import {SocialIcon} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
-import {SocialIcon} from 'react-native-elements';
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
 
 class Login extends Component {
-  
+  componentDidMount(){
+    auth().onAuthStateChanged(function(user) {
+      if (user==auth().currentUser) {
+        console.log(user)
+      }
+      else{
+        return null;
+      }
+    });
+  }
   constructor(props) {
     super(props);
     this.textInput = React.createRef();
     this.state = {
       uname: '',
       pass: '',
+      uid: '',
       authenticated: false,
       position: 'bottom',
     };
-    
   }
 
   writeText = text => {
@@ -39,21 +46,28 @@ class Login extends Component {
       uname: text,
     });
   };
-
-  login() {
+  
+  login = async () => {
     if (this.state.uname == '' && this.state.pass == '') {
       Alert.alert('Warning!', 'Please enter Your Details');
     }
     if (this.state.uname == '' || this.state.pass == '') {
       Alert.alert('Warning!', 'Email Or Password not found');
     } else {
-      const {uname, pass} = this.state;
+      const {uname, pass} = this.state;          
       auth()
         .signInWithEmailAndPassword(uname, pass)
-        .then(() => {
-          this.props.navigation.navigate('Home', {uname: this.state.uname});
-          console.log('signed in!');
-          this.textInput.current.clear();
+        .then(data => {
+          if (data.user.emailVerified) {
+            this.props.navigation.navigate('Home', {uname: this.state.uname});
+            console.log('signed in!');
+            this.textInput.current.clear();
+          } else {
+            Alert.alert(
+              'Warning',
+              'Please verify your email address before login',
+            );
+          }
         })
         .catch(error => {
           if (error.code === 'auth/invalid-email') {
@@ -70,7 +84,7 @@ class Login extends Component {
           if (error.code === 'auth/wrong-password') {
             console.log('That password was incorrect');
             ToastAndroid.showWithGravityAndOffset(
-              'Invalid PAssword',
+              'Invalid Password',
               ToastAndroid.LONG,
               ToastAndroid.BOTTOM,
               20,
@@ -88,9 +102,21 @@ class Login extends Component {
               100,
             );
           }
+          if (error.code === 'auth/too-many-requests') {
+            console.log('Too many requests found');
+            ToastAndroid.showWithGravityAndOffset(
+              'Too many requests found',
+              ToastAndroid.LONG,
+              ToastAndroid.BOTTOM,
+              20,
+              100,
+            );
+          }
         });
     }
-  }
+  };
+
+  login() {}
 
   signup(navigation) {
     this.props.navigation.navigate('Signup');
@@ -134,24 +160,21 @@ class Login extends Component {
             </View>
             <View>
               <View style={styles.button}>
-                <Button title="Login" onPress={this.login.bind(this)} />
+                <Button title="Login -->" onPress={()=>{this.login()}} />
               </View>
-
+            </View>
+            <View style={styles.ort}>
               <TouchableOpacity>
                 <SocialIcon
                   style={styles.soc}
-                  title="Sign In"
+                  light
                   button
                   type="google"
+                  onPress={()=>{this.login()}}
                 />
               </TouchableOpacity>
               <TouchableOpacity>
-                <SocialIcon
-                  style={styles.soc}
-                  title="Sign In"
-                  button
-                  type="facebook"
-                />
+                <SocialIcon style={styles.soc} button type="facebook" />
               </TouchableOpacity>
             </View>
             <View style={styles.SignupButton}>
@@ -203,9 +226,13 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginLeft: 5,
   },
+  ort: {
+    flexDirection: 'row',
+  },
   soc: {
     marginVertical: 10,
-    width: 200,
+    width: 50,
+    height: 50,
   },
   SignupButton: {
     flexDirection: 'row',

@@ -1,86 +1,87 @@
-import React, {Component} from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Button,
   Alert,
-  ToastAndroid,
-  TouchableWithoutFeedback,
+  Button,
   Keyboard,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
+import React, {Component} from 'react';
+
+import { BarPasswordStrengthDisplay } from 'react-native-password-strength-meter';
 import {SocialIcon} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
+import firestore from '@react-native-firebase/firestore';
 
 class Signup extends Component {
   constructor(props) {
+    
     super(props);
     this.textInput = React.createRef();
     this.state = {
       username: '',
       uname: '',
       pass: '',
+      cpass: '',
+      password: '',
       authenticated: 'false',
     };
   }
+  onChange = password => this.setState({ password })
 
   signup() {
-    if (this.state.textInput != this.state.textInput) {
-      Alert.alert('Password not matched');
-    } else {
-      const {uname, pass} = this.state;
-      auth()
-        .createUserWithEmailAndPassword(uname, pass)
-        .then(() => {
-          Alert.alert('Alert Title', 'User Added Successfully');
-          ToastAndroid.showWithGravityAndOffset(
-            'User Added Successfully',
-            ToastAndroid.LONG,
-            ToastAndroid.BOTTOM,
-            20,
-            100,
-          );
+        const {uname, pass} = this.state;
+        try {
+          auth()
+            .createUserWithEmailAndPassword(uname, pass)
+            .then(data => {
+              data.user.sendEmailVerification();
+              if (data.user.emailVerified) {
+                console.log('Verified');
+              } else {
+                console.log('Not Verified');
+              }
 
-          console.log('User Registered');
-          database()
-            .ref('/users/')
-            .push({
-              uid: (auth().currentUser || {}).uid,
-              name: this.state.username,
-              email: this.state.uname,
+              Alert.alert(
+                'Alert Title',
+                'Signup Complete Verify email adress to login',
+              );
+              database()
+                .ref('/users/')
+                .push({
+                  uid: (auth().currentUser || {}).uid,
+                  name: this.state.username,
+                  email: this.state.uname,
+                });
+              this.props.navigation.navigate('Login');
+            })
+
+            .catch(error => {
+              if (error.code === 'auth/email-already-in-use') {
+                Alert.alert(
+                  'Already a user',
+                  'Enter login details to proceed',
+                );
+              }
+
+              if (error.code === 'auth/invalid-email') {
+                Alert.alert(
+                  'Invalid Email',
+                  'Enter valid email address',
+                );
+              }
+              if (error.code === 'auth/weak-password') {
+                Alert.alert('Warning!', 'Your Password is weak');
+              }
             });
-        })
-        .catch(error => {
-          if (error.code === 'auth/email-already-in-use') {
-            console.log('That email address is already in use!');
-            ToastAndroid.showWithGravityAndOffset(
-              'User Already Exist',
-              ToastAndroid.LONG,
-              ToastAndroid.BOTTOM,
-              20,
-              100,
-            );
-          }
-
-          if (error.code === 'auth/invalid-email') {
-            console.log('That email address is invalid!');
-            ToastAndroid.showWithGravityAndOffset(
-              'Invalid Email',
-              ToastAndroid.LONG,
-              ToastAndroid.BOTTOM,
-              20,
-              100,
-            );
-          }
-
-          if (error.code === 'auth/weak-password') {
-            Alert.alert('Warninig!', 'Your Password is weak');
-          }
-        });
-    }
+        } catch (error) {
+          console.log(error);
+        }
+    
   }
   goBack(navigation) {
     this.props.navigation.navigate('Login');
@@ -94,7 +95,9 @@ class Signup extends Component {
         }}>
         <View style={styles.container1}>
           <View style={styles.headerContainer}>
-            <Text style={styles.header}>DrilloChat - Connect With Friends</Text>
+            <Text style={styles.header}>
+              DrilloChat - Connect With Friends
+            </Text>
           </View>
           <View style={styles.Signup}>
             <Text style={styles.loginText}>SignUp</Text>
@@ -115,15 +118,16 @@ class Signup extends Component {
                 style={styles.input}
                 type="password"
                 placeholder="Enter Password"
-                onChangeText={password => this.setState({pass: password})}
+                onChangeText={this.onChange}
                 secureTextEntry={true}
               />
+              <BarPasswordStrengthDisplay width={50} style={styles.input} password={this.state.password}/>
 
               <TextInput
                 style={styles.input}
                 type="password"
                 placeholder="Confirm Password"
-                onChangeText={password => this.setState({pass: password})}
+                onChangeText={this.onChange}
                 secureTextEntry={true}
               />
             </View>
@@ -131,23 +135,6 @@ class Signup extends Component {
               <View style={styles.button}>
                 <Button title="SignUp" onPress={this.signup.bind(this)} />
               </View>
-
-              <TouchableOpacity>
-                <SocialIcon
-                  style={styles.soc}
-                  title="Sign Up"
-                  button
-                  type="facebook"
-                />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <SocialIcon
-                  style={styles.soc}
-                  title="Sign Up"
-                  button
-                  type="google"
-                />
-              </TouchableOpacity>
             </View>
             <View style={styles.SignupButton}>
               <Text style={styles.SignupText1}>Already a member?</Text>
